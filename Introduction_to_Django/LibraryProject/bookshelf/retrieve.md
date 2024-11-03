@@ -1,5 +1,7 @@
-#retrieving all records from a database model
+# retrieving all records from a database model
 from bookshelf.models import Book
-retrieve = Book.objects.get(id=1)
+
+retrieve = Book.objects.get(title="1984")
 print(retrieve)
-<QuerySet [<Book: Book object (1)>]>
+<Book: 1984>
+
