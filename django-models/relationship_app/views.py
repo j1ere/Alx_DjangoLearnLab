@@ -18,6 +18,39 @@ from .models import UserProfile
 
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render
+from django.contrib.auth.decorators import permission_required
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Book
+
+# Add Book
+@permission_required('relationship_app.can_add_book', raise_exception=True)
+def add_book(request):
+    if request.method == 'POST':
+        # Handle book addition
+        title = request.POST.get('title')
+        author = request.POST.get('author')
+        Book.objects.create(title=title, author=author)
+        return redirect('book_list')  # Redirect to book list after adding
+    return render(request, 'relationship_app/add_book.html')
+
+# Edit Book
+@permission_required('relationship_app.can_change_book', raise_exception=True)
+def edit_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    if request.method == 'POST':
+        # Handle book editing
+        book.title = request.POST.get('title')
+        book.author_id = request.POST.get('author')
+        book.save()
+        return redirect('book_list')  # Redirect to book list after editing
+    return render(request, 'relationship_app/edit_book.html', {'book': book})
+
+# Delete Book
+@permission_required('relationship_app.can_delete_book', raise_exception=True)
+def delete_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    book.delete()
+    return redirect('book_list')  # Redirect to book list after deleting
 
 # Helper function to check if the user is an admin
 def is_admin(user):
