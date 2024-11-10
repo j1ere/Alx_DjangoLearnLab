@@ -4,8 +4,8 @@ from .models import Book, Library
 
 # Function-based view to list all books with their authors
 def book_list_view(request):
-    books = Book.objects.select_related('author').all()
-    return render(request, 'relationship_app/book_list.html', {'books': books})
+    books = Book.objects.all()  # Retrieve all books from the database
+    return render(request, 'relationship_app/list_books.html', {'books': books})
 
 # Class-based view to display details of a specific library and its books
 class LibraryDetailView(DetailView):
