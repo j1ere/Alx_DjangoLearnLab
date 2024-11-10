@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import DetailView
-from .models import Book, Library  # Import both Book and Library models
+from .models import Library, Book  # Import both Book and Library models
 
 # Function-based view to list all books with their authors
 def book_list_view(request):
