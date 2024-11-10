@@ -11,6 +11,36 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 
+
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render
+from .models import UserProfile
+
+# Helper functions to check user roles
+def is_admin(user):
+    return user.is_authenticated and user.userprofile.role == 'Admin'
+
+def is_librarian(user):
+    return user.is_authenticated and user.userprofile.role == 'Librarian'
+
+def is_member(user):
+    return user.is_authenticated and user.userprofile.role == 'Member'
+
+# Admin view restricted to Admin role
+@user_passes_test(is_admin)
+def admin_view(request):
+    return render(request, 'relationship_app/admin_view.html', {'role': 'Admin'})
+
+# Librarian view restricted to Librarian role
+@user_passes_test(is_librarian)
+def librarian_view(request):
+    return render(request, 'relationship_app/librarian_view.html', {'role': 'Librarian'})
+
+# Member view restricted to Member role
+@user_passes_test(is_member)
+def member_view(request):
+    return render(request, 'relationship_app/member_view.html', {'role': 'Member'})
+
 # Custom view for user registration
 def register(request):
     if request.method == 'POST':
