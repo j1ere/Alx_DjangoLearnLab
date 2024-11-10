@@ -16,6 +16,18 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render
 from .models import UserProfile
 
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render
+
+# Helper function to check if the user is an admin
+def is_admin(user):
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
+
+# Admin view restricted to users with the Admin role
+@user_passes_test(is_admin)
+def admin_view(request):
+    return render(request, 'relationship_app/admin_view.html', {'role': 'Admin'})
+
 # Helper functions to check user roles
 def is_admin(user):
     return user.is_authenticated and user.userprofile.role == 'Admin'
