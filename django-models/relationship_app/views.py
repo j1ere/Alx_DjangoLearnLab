@@ -22,12 +22,10 @@ from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Book
 
-
 from django.shortcuts import render
 from django.contrib.auth.decorators import user_passes_test
-from .models import UserProfile
 
-# Check functions
+# Check functions to verify roles
 def is_admin(user):
     return user.is_authenticated and user.userprofile.role == 'Admin'
 
@@ -37,18 +35,20 @@ def is_librarian(user):
 def is_member(user):
     return user.is_authenticated and user.userprofile.role == 'Member'
 
-# Views
+# Admin View (Accessible by Admin users only)
 @user_passes_test(is_admin)
 def admin_view(request):
-    return render(request, 'relationship_app/admin_view.html', {'role': 'Admin'})
+    return render(request, 'relationship_app/admin_view.html')
 
+# Librarian View (Accessible by Librarian users only)
 @user_passes_test(is_librarian)
 def librarian_view(request):
-    return render(request, 'relationship_app/librarian_view.html', {'role': 'Librarian'})
+    return render(request, 'relationship_app/librarian_view.html')
 
+# Member View (Accessible by Member users only)
 @user_passes_test(is_member)
 def member_view(request):
-    return render(request, 'relationship_app/member_view.html', {'role': 'Member'})
+    return render(request, 'relationship_app/member_view.html')
 
 # Add Book
 @permission_required('relationship_app.can_add_book', raise_exception=True)
