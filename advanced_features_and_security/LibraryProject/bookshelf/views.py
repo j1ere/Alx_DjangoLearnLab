@@ -75,3 +75,15 @@ def search_books(request):
         # Use Django ORM to prevent SQL injection
         books = Book.objects.filter(title__icontains=query)
     return render(request, 'bookshelf/book_list.html', {'form': form, 'books': books})
+
+from .forms import ExampleForm
+
+def add_book(request):
+    if request.method == "POST":
+        form = ExampleForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('book_list')  # Replace with your book list view name
+    else:
+        form = ExampleForm()
+    return render(request, 'bookshelf/form_example.html', {'form': form})
