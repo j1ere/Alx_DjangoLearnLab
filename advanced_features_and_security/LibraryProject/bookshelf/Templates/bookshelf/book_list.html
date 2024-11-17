@@ -1,13 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Books{% endblock %}
+{% block content %}
+<h2>Books</h2>
+{% if user.has_perm('myapp.can_create') %}
+    <a href="{% url 'book_create' %}">Add Book</a>
+{% endif %}
+<ul>
     {% for book in books %}
-    <h3>{{book}}</h3>
-    {%endfor%}
-</body>
-</html>
+        <li>
+            {{ book.title }} by {{ book.author }}
+            {% if user.has_perm('myapp.can_edit') %}
+                <a href="{% url 'book_edit' book.id %}">Edit</a>
+            {% endif %}
+            {% if user.has_perm('myapp.can_delete') %}
+                <a href="{% url 'book_delete' book.id %}">Delete</a>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

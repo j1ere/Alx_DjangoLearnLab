@@ -1,11 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h3>hello there!</h3>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Book Form{% endblock %}
+{% block content %}
+<h2>{% if book %}Edit{% else %}Add{% endif %} Book</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="title">Title:</label>
+    <input type="text" name="title" id="title" value="{{ book.title|default_if_none:'' }}" required>
+    <label for="author">Author:</label>
+    <input type="text" name="author" id="author" value="{{ book.author|default_if_none:'' }}" required>
+    <button type="submit">Save</button>
+</form>
+{% endblock %}

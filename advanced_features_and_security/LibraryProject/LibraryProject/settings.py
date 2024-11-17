@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-0)j*3njy2(eb0lk(#8sazpef=#r#o8^7^pf4^lh0wykwr&w+ar"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['elibrary.com', 'www.elibrary.com']
 
 
 # Application definition
@@ -123,3 +123,24 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+
+# Add secure settings
+SECURE_BROWSER_XSS_FILTER = True # Enable XSS filtering in browsers
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True # Prevent MIME type sniffing
+
+# Enforce cookies over HTTPS
+CSRF_COOKIE_SECURE = True # Ensure CSRF cookies are sent over HTTPS
+SESSION_COOKIE_SECURE = True # Ensure session cookies are sent over HTTPS
+
+
+# Add Content Security Policy (CSP) middleware
+INSTALLED_APPS += ['csp']
+
+# Configure CSP (django-csp)
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", 'https://trusted-scripts.com')
+CSP_STYLE_SRC = ("'self'", 'https://trusted-styles.com')
+
+
