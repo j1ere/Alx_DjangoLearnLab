@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -143,4 +143,14 @@ CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'", 'https://trusted-scripts.com')
 CSP_STYLE_SRC = ("'self'", 'https://trusted-styles.com')
 
+
+
+
+# Enforce HTTPS for all requests
+SECURE_SSL_REDIRECT = True  # Redirects all non-HTTPS requests to HTTPS
+
+# HTTP Strict Transport Security (HSTS)
+SECURE_HSTS_SECONDS = 31536000  # Enforce HTTPS for 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Include subdomains in HSTS policy
+SECURE_HSTS_PRELOAD = True  # Allow site to be included in HSTS preload list
 
