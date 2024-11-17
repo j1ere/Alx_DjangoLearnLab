@@ -5,7 +5,7 @@ from django.views.generic.detail import DetailView
 from .views import list_books
 
 
-from django.shortcuts import redirect, render
+
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.forms import UserCreationForm
@@ -16,14 +16,17 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render
 from .models import UserProfile
 
-from django.contrib.auth.decorators import user_passes_test
-from django.shortcuts import render
-from django.contrib.auth.decorators import permission_required
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Book
+# views.py
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import user_passes_test
+
+# Check if the user is an admin
+def is_admin(user):
+    return user.is_authenticated and user.userprofile.role == 'Admin'
+
+# Admin view (Only accessible by Admin users)
+@user_passes_test(is_admin)
+def admin_view(request):
+    return render(request, 'relationship_app/admin_view.html')
 
 # Check functions to verify roles
 def is_admin(user):
