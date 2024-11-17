@@ -20,7 +20,7 @@ def is_admin(user):
 
 # Admin view (Only accessible by Admin users)
 @user_passes_test(is_admin)
-def admin_view(request):
+def Admin_view(request):
     return render(request, 'relationship_app/admin_view.html')
 
 def is_librarian(user):
