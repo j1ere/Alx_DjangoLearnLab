@@ -3,57 +3,38 @@ from rest_framework import generics, permissions
 from .models import Book
 from .serializers import BookSerializer
 from rest_framework.filters import SearchFilter
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
+from .permissions import IsAdminOrReadOnly
 # Create your views here.
 # Retrieve all books
 
-class BookListView(generics.ListAPIView):
+# List all books
+class BookListView(ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
-    filter_backends = [SearchFilter]
-    search_fields = ['title', 'author__name'] 
-# Retrieve a single book by ID
-class BookDetailView(generics.RetrieveAPIView):
-    """
-    View to retrieve a single book by its ID.
-    """
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+# Retrieve a specific book by ID
+class BookDetailView(RetrieveAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]  # Open for read-only access
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
-
-# Add a new book
-class BookCreateView(generics.CreateAPIView):
-    """
-    View to create a new book.
-    """
+# Create a new book (Authenticated users only)
+class BookCreateView(CreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
-    def perform_create(self, serializer):
-        """
-        Override to add custom logic during creation.
-        For example, attach the current user if required.
-        """
-        serializer.save()
-
-
-# Update an existing book
-class BookUpdateView(generics.UpdateAPIView):
-    """
-    View to update an existing book.
-    """
+# Update an existing book (Admin only or custom permissions)
+class BookUpdateView(UpdateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Authenticated users only
+    permission_classes = [IsAdminOrReadOnly]
 
-
-# Delete a book
-class BookDeleteView(generics.DestroyAPIView):
-    """
-    View to delete a book.
-    """
+# Delete a book (Admin only or custom permissions)
+class BookDeleteView(DestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Authenticated users only
+    permission_classes = [IsAdminOrReadOnly]
