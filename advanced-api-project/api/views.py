@@ -6,14 +6,27 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 from .permissions import IsAdminOrReadOnly
+from rest_framework.filters import SearchFilter, OrderingFilter
+
 # Create your views here.
 # Retrieve all books
 
 # List all books
+# class BookListView(ListAPIView):
+#     queryset = Book.objects.all()
+#     serializer_class = BookSerializer
+#     permission_classes = [IsAuthenticatedOrReadOnly]
+
 class BookListView(ListAPIView):
+    """
+    Simplified view with only search and ordering.
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['title', 'author__name']
+    ordering_fields = ['title', 'publication_year']
+    ordering = ['title']
 
 # Retrieve a specific book by ID
 class BookDetailView(RetrieveAPIView):
