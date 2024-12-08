@@ -2,9 +2,13 @@
 {% extends 'blog/base.html' %}
 {% block content %}
 <h2>Post a Comment</h2>
-<form method="post">
+<p>Post ID: {{ post.id }}</p>
+
+<form method="post" action="{% url 'add_comment' post.id %}">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Post Comment</button>
+</form>
+
 </form>
 {% endblock %}
