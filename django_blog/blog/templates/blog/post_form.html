@@ -2,6 +2,7 @@
     <!-- blog/templates/blog/post_form.html -->
     {% extends 'blog/base.html' %}
     {% block content %}
+    
     <h1>{% if object %}Edit{% else %}Create{% endif %} Post</h1>
     <form method="post">
         {% csrf_token %}

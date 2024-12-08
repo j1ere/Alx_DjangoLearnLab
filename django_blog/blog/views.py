@@ -7,8 +7,9 @@ from .forms import CustomUserCreationForm, CustomUserChangeForm, CommentForm
 from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Post, Comment
+from .models import *
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Q
 
 # Create your views here.
 def home_view(request):
@@ -130,6 +131,17 @@ class PostListView(ListView):
     template_name = 'blog/post_list.html'
     context_object_name = 'posts'  # Context name for the list of posts in the template.
 
+    def get_queryset(self):
+        query = self.request.GET.get('q', '')
+        if query:
+            return Post.objects.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query)
+            ).distinct()
+        return Post.objects.all()
+    
+
 # View to display a single post with detailed information.
 class PostDetailView(DetailView):
     """
@@ -154,16 +166,18 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     upon successful creation.
     """
     model = Post
-    fields = ['title', 'content']
+    fields = ['title', 'content', 'tags']
     template_name = 'blog/post_form.html'
     success_url = reverse_lazy('post_list')  # Redirect to the post list view after successful creation.
 
     def form_valid(self, form):
-        """
-        This method is called when the form is valid. It sets the 'author' field of the form to 
-        the current logged-in user before saving the post.
-        """
         form.instance.author = self.request.user
+        # Process tags and associate them with the post
+        tags = form.cleaned_data['tags']
+        if tags:
+            tag_names = {tag.strip() for tag in tags.split(',') if tag.strip()}  # Ensure no duplicates
+            tags_objects = [Tag.objects.get_or_create(name=name)[0] for name in tag_names]
+            form.instance.tags.set(tags_objects)  # Associate the tags with the post
         return super().form_valid(form)
 
 # View to handle the update/edit of an existing blog post.
@@ -176,7 +190,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     of the post. Upon successful form submission, the user is redirected to the updated post's detail page.
     """
     model = Post
-    fields = ['title', 'content']
+    fields = ['title', 'content', 'tags']
     template_name = 'blog/post_form.html'
 
     def get_success_url(self):
@@ -187,11 +201,13 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse('post_detail', kwargs={'pk': self.object.pk})
 
     def form_valid(self, form):
-        """
-        This method is called when the form is valid. It sets the 'author' field of the form to 
-        the current logged-in user before saving the updated post.
-        """
         form.instance.author = self.request.user
+        # Process tags and associate them with the post
+        tags = form.cleaned_data['tags']
+        if tags:
+            tag_names = {tag.strip() for tag in tags.split(',') if tag.strip()}  # Ensure no duplicates
+            tags_objects = [Tag.objects.get_or_create(name=name)[0] for name in tag_names]
+            form.instance.tags.set(tags_objects)  # Update the post with the new tags
         return super().form_valid(form)
 
     def test_func(self):
@@ -278,60 +294,8 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         comment = self.get_object()
         return self.request.user == comment.author
 
-# @login_required
-# def add_comment(request, post_id):
-#     post = get_object_or_404(Post, pk=post_id)
-    
-#     if request.method == 'POST':
-#         form = CommentForm(request.POST)
-#         if form.is_valid():
-#             # Create a new comment associated with the post and the logged-in user
-#             comment = form.save(commit=False)
-#             comment.post = post
-#             comment.author = request.user
-#             comment.save()
-#             return redirect('post_detail', pk=post.pk)  # Redirect to the post detail page after submission
-#     else:
-#         form = CommentForm()
 
-#     return render(request, 'blog/add_comment.html', {'form': form, 'post': post})
-
-# @login_required
-# def edit_comment(request, comment_id):
-#     comment = get_object_or_404(Comment, pk=comment_id)
-#     post = comment.post
-    
-#     if request.user != comment.author:
-#         return redirect('post_detail', pk=post.pk)  # Ensure only the comment's author can edit
-    
-#     if request.method == 'POST':
-#         form = CommentForm(request.POST, instance=comment)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('post_detail', pk=post.pk)  # Redirect to post detail after editing
-#     else:
-#         form = CommentForm(instance=comment)
-
-#     return render(request, 'blog/edit_comment.html', {'form': form, 'post': post, 'comment': comment})
-
-
-# @login_required
-# def delete_comment(request, comment_id):
-#     comment = get_object_or_404(Comment, pk=comment_id)
-#     post = comment.post
-    
-#     if request.user == comment.author:
-#         comment.delete()
-#     return redirect('post_detail', pk=post.pk)  # Redirect to post detail after deletion
-
-# @login_required
-# def profile_view(request):
-#     if request.method == "POST":
-#         user = request.user
-#         user.email = request.POST.get('email', user.email)
-#         user.first_name = request.POST.get('first_name', user.first_name)
-#         user.last_name = request.POST.get('last_name', user.last_name)
-#         user.save()
-#         messages.success(request, "Profile updated successfully.")
-#         return redirect('profile')
-#     return render(request, 'auth/profile.html')
+def posts_by_tag(request, tag_name):
+    tag = get_object_or_404(Tag, name=tag_name)
+    posts = Post.objects.filter(tags=tag)
+    return render(request, 'blog/posts_by_tag.html', {'tag': tag, 'posts': posts})

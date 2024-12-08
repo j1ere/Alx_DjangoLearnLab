@@ -1,5 +1,124 @@
 <!-- blog/templates/blog/post_detail.html -->
 {% extends 'blog/base.html' %} {% block content %}
+<style>
+    /* General Styles */
+    .post {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+  
+    .post-header h1 {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+    }
+  
+    .post-meta {
+      font-size: 0.9em;
+      color: #777;
+    }
+  
+    .comments-section {
+      margin-top: 40px;
+    }
+  
+    .comments-section h2 {
+      font-size: 1.8em;
+      margin-bottom: 10px;
+    }
+  
+    /* Comment Styles */
+    .comments {
+      margin-top: 20px;
+    }
+  
+    .comment {
+      background-color: #fff;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  
+    .comment-meta {
+      font-size: 0.85em;
+      color: #555;
+      margin-top: 10px;
+    }
+  
+    .comment-action {
+      color: #007bff;
+      text-decoration: none;
+      font-size: 0.9em;
+    }
+  
+    .comment-action:hover {
+      text-decoration: underline;
+    }
+  
+    /* Add Comment Form Styles */
+    form {
+      margin-top: 20px;
+    }
+  
+    .comment-btn {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  
+    .comment-btn:hover {
+      background-color: #0056b3;
+    }
+  
+    /* Post Action Buttons */
+    .post-actions {
+      margin-top: 20px;
+      text-align: center;
+    }
+  
+    .post-action-btn {
+      padding: 10px 20px;
+      background-color: #f44336;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      margin-right: 10px;
+      font-size: 1em;
+    }
+  
+    .post-action-btn:hover {
+      background-color: #d32f2f;
+    }
+  
+    /* Responsiveness */
+    @media (max-width: 768px) {
+      .post {
+        padding: 15px;
+      }
+  
+      .post-header h1 {
+        font-size: 2em;
+      }
+  
+      .comments-section h2 {
+        font-size: 1.6em;
+      }
+  
+      .comment-btn,
+      .post-action-btn {
+        font-size: 0.9em;
+      }
+    }
+  </style>
+  
+  
 <div class="post">
   <!-- Post Title and Content -->
   <div class="post-header">
@@ -60,7 +179,7 @@
   </div>
 </div>
 
-{% endblock %} {% block styles %}
+{% endblock %} 
 <style>
   /* General Styles */
   .post {
@@ -178,4 +297,4 @@
     }
   }
 </style>
-{% endblock %}
+
