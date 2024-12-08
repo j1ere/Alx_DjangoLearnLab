@@ -18,15 +18,14 @@ class CustomUserChangeForm(UserChangeForm):
 
 
 class PostForm(forms.ModelForm):
-    tags = forms.CharField(
-        required=False,
-        help_text="Enter comma-separated tags.",
-        widget=TagWidget()  # Use TagWidget for rendering tags
-    )
-
     class Meta:
         model = Post
         fields = ['title', 'content', 'tags']
+        widgets = {
+            'tags': TagWidget(),  # Define widgets for fields here
+            'content': forms.Textarea(attrs={'cols': 80, 'rows': 20}),  # Example custom widget
+        }
+
 
     def save(self, commit=True):
         post = super().save(commit=False)
