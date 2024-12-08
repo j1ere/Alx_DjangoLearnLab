@@ -1,0 +1,12 @@
+
+    <!-- blog/templates/blog/post_detail.html -->
+    {% extends 'blog/base.html' %}
+    {% block content %}
+    <div class="post">
+        <h1>{{ post.title }}</h1>
+        <p>{{ post.content }}</p>
+        <p><small>By {{ post.author }} | {{ post.created_at }}</small></p>
+    </div>
+    <a href="{%url 'post_edit' pk=post.pk%}">Edit post</a>
+    <a href="{%url 'post_delete' pk=post.pk%}">Delete post</a>
+    {% endblock %}

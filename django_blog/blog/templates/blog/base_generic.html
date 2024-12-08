@@ -1,0 +1,28 @@
+<!-- templates/base_generic.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Django Blog{% endblock %}</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <!-- Your navigation links here -->
+        <a href="/">Home</a>
+        <a href="/blog/posts/">Posts</a>
+      </nav>
+    </header>
+
+    <main>
+      {% block content %}
+      <!-- Content will be inserted here -->
+      {% endblock %}
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Django Blog</p>
+    </footer>
+  </body>
+</html>
