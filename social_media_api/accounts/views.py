@@ -7,6 +7,7 @@ from .serializers import UserSerializer
 from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
 from rest_framework import status, permissions
+from rest_framework import generics, permissions, status
 
 
 class RegisterView(APIView):
@@ -31,45 +32,31 @@ class LoginView(APIView):
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class FollowViewSet(ViewSet):
+class FollowUserView(generics.GenericAPIView):
+    """
+    View for following a user.
+    """
     permission_classes = [permissions.IsAuthenticated]
+    queryset = CustomUser.objects.all()  # Ensures the use of CustomUser.objects.all()
+    serializer_class = UserSerializer
 
-    @action(detail=True, methods=['post'])
-    def follow(self, request, pk=None):
-        """Follow a user."""
-        try:
-            user_to_follow = CustomUser.objects.get(pk=pk)
-            if user_to_follow == request.user:
-                return Response({"detail": "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            request.user.following.add(user_to_follow)
-            return Response({"detail": f"You are now following {user_to_follow.username}."}, status=status.HTTP_200_OK)
-        except CustomUser.DoesNotExist:
-            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-
-    @action(detail=True, methods=['post'])
-    def unfollow(self, request, pk=None):
-        """Unfollow a user."""
-        try:
-            user_to_unfollow = CustomUser.objects.get(pk=pk)
-            request.user.following.remove(user_to_unfollow)
-            return Response({"detail": f"You have unfollowed {user_to_unfollow.username}."}, status=status.HTTP_200_OK)
-        except CustomUser.DoesNotExist:
-            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-
-    @action(detail=False, methods=['get'])
-    def followers(self, request):
-        """Get a list of followers for the logged-in user."""
-        followers = CustomUser.objects.filter(following=request.user)
-        data = [{"id": follower.id, "username": follower.username} for follower in followers]
-        return Response(data, status=status.HTTP_200_OK)
-
-    @action(detail=False, methods=['get'])
-    def following(self, request):
-        """Get a list of users the logged-in user is following."""
-        following = request.user.following.all()
-        data = [{"id": follow.id, "username": follow.username} for follow in following]
-        return Response(data, status=status.HTTP_200_OK)
+    def post(self, request, *args, **kwargs):
+        user_to_follow = self.get_object()  # Fetch user by the `pk` in the URL
+        if user_to_follow == request.user:
+            return Response({"detail": "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
+        request.user.following.add(user_to_follow)
+        return Response({"detail": f"You are now following {user_to_follow.username}."}, status=status.HTTP_200_OK)
 
 
+class UnfollowUserView(generics.GenericAPIView):
+    """
+    View for unfollowing a user.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
 
+    def post(self, request, *args, **kwargs):
+        user_to_unfollow = self.get_object()
+        request.user.following.remove(user_to_unfollow)
+        return Response({"detail": f"You have unfollowed {user_to_unfollow.username}."}, status=status.HTTP_200_OK)
