@@ -37,14 +37,19 @@ class FollowUserView(generics.GenericAPIView):
     View for following a user.
     """
     permission_classes = [permissions.IsAuthenticated]
-    queryset = CustomUser.objects.all()  # Ensures the use of CustomUser.objects.all()
+    queryset = CustomUser.objects.all()  # Explicit usage of CustomUser.objects.all()
     serializer_class = UserSerializer
 
     def post(self, request, *args, **kwargs):
-        user_to_follow = self.get_object()  # Fetch user by the `pk` in the URL
+        try:
+            user_to_follow = self.get_object()  # Fetch user by `pk` from URL
+        except CustomUser.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
         if user_to_follow == request.user:
             return Response({"detail": "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
-        request.user.following.add(user_to_follow)
+
+        request.user.following.add(user_to_follow)  # Add to the following list
         return Response({"detail": f"You are now following {user_to_follow.username}."}, status=status.HTTP_200_OK)
 
 
@@ -53,10 +58,14 @@ class UnfollowUserView(generics.GenericAPIView):
     View for unfollowing a user.
     """
     permission_classes = [permissions.IsAuthenticated]
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.all()  # Explicit usage of CustomUser.objects.all()
     serializer_class = UserSerializer
 
     def post(self, request, *args, **kwargs):
-        user_to_unfollow = self.get_object()
-        request.user.following.remove(user_to_unfollow)
+        try:
+            user_to_unfollow = self.get_object()
+        except CustomUser.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        request.user.following.remove(user_to_unfollow)  # Remove from the following list
         return Response({"detail": f"You have unfollowed {user_to_unfollow.username}."}, status=status.HTTP_200_OK)
