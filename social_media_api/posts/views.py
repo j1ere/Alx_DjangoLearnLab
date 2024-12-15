@@ -4,6 +4,9 @@ from .serializers import PostSerializer, CommentSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import filters
+from rest_framework.permissions import IsAuthenticated
+from .serializers import PostSerializer
+from rest_framework.views import APIView
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
@@ -35,3 +38,15 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_post(self):
         post_id = self.kwargs['post_pk']
         return Post.objects.get(id=post_id)
+
+
+
+class FeedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Get posts from users the current user is following
+        followed_users = request.user.following.all()
+        posts = Post.objects.filter(author__in=followed_users).order_by('-created_at')
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)

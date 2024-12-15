@@ -9,4 +9,5 @@ router.register(r'posts/(?P<post_pk>[^/.]+)/comments', views.CommentViewSet, bas
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('feed/', views.FeedView.as_view(), name='feed'),
 ]
