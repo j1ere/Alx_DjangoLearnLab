@@ -1,5 +1,5 @@
 from rest_framework import viewsets, permissions
-from .models import Post, Comment
+from .models import Post, Comment,Like
 from .serializers import PostSerializer, CommentSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -7,6 +7,8 @@ from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
 from .serializers import PostSerializer
 from rest_framework.views import APIView
+from notifications.models import Notification
+from rest_framework import status
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
@@ -57,3 +59,41 @@ class FeedView(APIView):
         # Serialize the filtered posts
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
+    
+
+class LikePostView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            post = Post.objects.get(pk=pk)
+            like, created = Like.objects.get_or_create(user=request.user, post=post)
+            if created:
+                # Generate a notification for the post author
+                if post.author != request.user:
+                    Notification.objects.create(
+                        recipient=post.author,
+                        actor=request.user,
+                        verb="liked",
+                        target=post
+                    )
+                return Response({"detail": "Post liked."}, status=status.HTTP_200_OK)
+            else:
+                return Response({"detail": "You have already liked this post."}, status=status.HTTP_400_BAD_REQUEST)
+        except Post.DoesNotExist:
+            return Response({"detail": "Post not found."}, status=status.HTTP_404_NOT_FOUND)
+
+class UnlikePostView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            post = Post.objects.get(pk=pk)
+            like = Like.objects.filter(user=request.user, post=post)
+            if like.exists():
+                like.delete()
+                return Response({"detail": "Post unliked."}, status=status.HTTP_200_OK)
+            else:
+                return Response({"detail": "You have not liked this post."}, status=status.HTTP_400_BAD_REQUEST)
+        except Post.DoesNotExist:
+            return Response({"detail": "Post not found."}, status=status.HTTP_404_NOT_FOUND)
