@@ -42,11 +42,18 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class FeedView(APIView):
+    """
+    View to generate a feed of posts from users the current user follows.
+    """
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        # Get posts from users the current user is following
-        followed_users = request.user.following.all()
-        posts = Post.objects.filter(author__in=followed_users).order_by('-created_at')
+    def get(self, request, *args, **kwargs):
+        # Get the list of users the current user follows
+        following_users = request.user.following.all()
+
+        # Filter posts by authors in the following list and order by creation date
+        posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
+
+        # Serialize the filtered posts
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
