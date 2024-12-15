@@ -7,7 +7,7 @@ CustomUser = get_user_model()  # Dynamically get the user model
 
 class UserSerializer(serializers.ModelSerializer):
     # Explicitly define the password field with write-only property
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField()
 
     class Meta:
         model = CustomUser
